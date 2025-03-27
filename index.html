@@ -245,16 +245,18 @@
             height: 30px;
             border: 3px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top-color: #2ecc71;
-            animation: spin 1s ease-in-out infinite;
-            margin: 0 auto 10px;
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
         
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
         
-        /* 支付状态指示器 */
+        /* 支付进度 */
         .payment-progress {
             display: none;
             margin: 15px 0;
@@ -262,38 +264,40 @@
         }
         
         .progress-dots {
-            display: inline-block;
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
         }
         
         .progress-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+            width: 10px;
+            height: 10px;
             background-color: #ddd;
-            margin: 0 3px;
+            border-radius: 50%;
+            margin: 0 5px;
+            transition: background-color 0.3s;
         }
         
         .progress-dot.active {
             background-color: #3498db;
         }
         
-        /* 支付结果样式 */
         .payment-result {
+            display: none;
+            margin-top: 15px;
             padding: 10px;
             border-radius: 5px;
-            margin-top: 15px;
-            display: none;
+            font-weight: bold;
         }
         
         .payment-result.success {
-            background-color: rgba(46, 204, 113, 0.1);
-            color: #27ae60;
+            background-color: #d4edda;
+            color: #155724;
         }
         
         .payment-result.error {
-            background-color: rgba(231, 76, 60, 0.1);
-            color: #e74c3c;
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -530,8 +534,6 @@
             <h3 class="result-title">发展建议</h3>
             <div id="recommendations"></div>
         </div>
-        
-        <button type="button" id="full-report-button" class="print-button">查看完整报告</button>
     </div>
     
     <div class="payment-modal" id="payment-modal">
@@ -545,19 +547,19 @@
             </div>
             <div class="loading-spinner" id="payment-spinner"></div>
             <div class="payment-progress" id="payment-progress">
+                <div id="progress-text">正在处理...</div>
                 <div class="progress-dots">
                     <span class="progress-dot active"></span>
                     <span class="progress-dot"></span>
                     <span class="progress-dot"></span>
                 </div>
-                <div id="progress-text">正在连接支付服务...</div>
             </div>
             <div class="payment-result" id="payment-result"></div>
-            <div class="payment-buttons">
-                <button type="button" id="payment-confirm" class="payment-button payment-confirm">我已完成支付</button>
-                <button type="button" id="payment-cancel" class="payment-button payment-cancel">取消</button>
-            </div>
             <div class="payment-status" id="payment-status"></div>
+            <div class="payment-buttons">
+                <button id="payment-confirm" class="payment-button payment-confirm">确认已支付</button>
+                <button id="payment-cancel" class="payment-button payment-cancel">取消</button>
+            </div>
         </div>
     </div>
     
@@ -571,10 +573,24 @@
             init() {
                 // 绑定事件
                 document.getElementById('submit-button').addEventListener('click', this.submitAssessment.bind(this));
-                document.getElementById('full-report-button').addEventListener('click', this.showFullReport.bind(this));
                 
                 // 初始化支付控制器
                 PaymentController.init();
+                
+                // 检查是否已支付
+                this.checkPaymentStatus();
+            },
+            
+            // 检查支付状态
+            checkPaymentStatus() {
+                // 如果已支付，显示报告
+                if (sessionStorage.getItem('paid_report') === 'true') {
+                    // 获取存储的评估数据
+                    const assessmentData = JSON.parse(sessionStorage.getItem('assessment_data') || '{}');
+                    if (assessmentData.scores) {
+                        UIController.displayResults(assessmentData.scores, assessmentData.answers || {});
+                    }
+                }
             },
             
             // 提交评估
@@ -619,12 +635,11 @@
                     answers[question] = parseInt(formData.get(question));
                 }
                 
-                // 显示结果
-                UIController.displayResults(scores, answers);
-            },
-            
-            // 显示完整报告
-            showFullReport() {
+                // 存储评估数据
+                const assessmentData = { scores, answers };
+                sessionStorage.setItem('assessment_data', JSON.stringify(assessmentData));
+                
+                // 直接显示支付界面
                 PaymentController.showPaymentModal();
             }
         };
@@ -738,15 +753,7 @@
                     // 创建订单
                     if (!this.currentOrder) {
                         // 获取当前评估数据
-                        const assessmentData = {
-                            scores: {
-                                cognitive: parseInt(document.getElementById('cognitive-score').textContent),
-                                language: parseInt(document.getElementById('language-score').textContent),
-                                social: parseInt(document.getElementById('social-score').textContent),
-                                motor: parseInt(document.getElementById('motor-score').textContent)
-                            },
-                            answers: {} // 在实际应用中，这里应该包含用户的所有答案
-                        };
+                        const assessmentData = JSON.parse(sessionStorage.getItem('assessment_data') || '{}');
                         
                         this.updateProgress(0, '正在创建订单...');
                         
@@ -819,18 +826,9 @@
                     this.closePayment();
                     
                     // 显示完整报告
-                    if (this.currentOrder && this.currentOrder.metadata && this.currentOrder.metadata.assessment_data) {
-                        const assessmentData = JSON.parse(atob(this.currentOrder.metadata.assessment_data));
-                        UIController.displayResults(assessmentData.scores, assessmentData.answers);
-                    } else {
-                        // 如果没有订单数据，使用当前显示的评估结果
-                        const scores = {
-                            cognitive: parseInt(document.getElementById('cognitive-score').textContent),
-                            language: parseInt(document.getElementById('language-score').textContent),
-                            social: parseInt(document.getElementById('social-score').textContent),
-                            motor: parseInt(document.getElementById('motor-score').textContent)
-                        };
-                        UIController.displayResults(scores, {});
+                    const assessmentData = JSON.parse(sessionStorage.getItem('assessment_data') || '{}');
+                    if (assessmentData.scores) {
+                        UIController.displayResults(assessmentData.scores, assessmentData.answers || {});
                     }
                 }, 2000);
             }
@@ -949,26 +947,39 @@
                     `);
                 }
                 
-                if (recommendations.length === 0) {
+                if (scores.attention <= 2) {
                     recommendations.push(`
                         <div class="recommendation">
-                            <strong>继续保持良好发展的建议：</strong>
+                            <strong>注意力提升建议：</strong>
                             <ul>
-                                <li>继续提供丰富多样的学习和游戏机会</li>
-                                <li>关注孩子的兴趣，支持其探索和发展特长</li>
-                                <li>保持良好的亲子互动和沟通</li>
+                                <li>提供结构化的日常活动和明确的规则</li>
+                                <li>减少环境中的干扰因素</li>
+                                <li>将大任务分解为小步骤，逐步完成</li>
+                                <li>使用计时器帮助孩子专注于任务</li>
                             </ul>
                         </div>
                     `);
                 }
                 
-                results.recommendations = recommendations.join("");
+                if (scores.emotion <= 2) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>情绪调节能力提升建议：</strong>
+                            <ul>
+                                <li>帮助孩子识别和命名不同的情绪</li>
+                                <li>教导适当的情绪表达方式</li>
+                                <li>提供情绪调节策略，如深呼吸、数数、寻求帮助</li>
+                                <li>成为情绪调节的榜样，展示健康的应对方式</li>
+                            </ul>
+                        </div>
+                    `);
+                }
                 
-                // 更新UI
+                // 显示结果
                 document.getElementById('overall-assessment').textContent = results.overall;
                 document.getElementById('strengths').textContent = results.strengths;
                 document.getElementById('concerns').textContent = results.concerns;
-                document.getElementById('recommendations').innerHTML = results.recommendations;
+                document.getElementById('recommendations').innerHTML = recommendations.join('');
                 
                 // 显示结果区域
                 document.getElementById('results').style.display = 'block';
@@ -978,7 +989,7 @@
             }
         };
         
-        // 初始化应用
+        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             AssessmentController.init();
         });
