@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儿童发育阶段自测表</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .intro {
+            background-color: #eaf2f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        
+        .question {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            margin-left: 20px;
+        }
+        
+        .option {
+            margin-bottom: 10px;
+        }
+        
+        label {
+            cursor: pointer;
+            display: block;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        label:hover {
+            background-color: #f0f0f0;
+        }
+        
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        #results {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result-section {
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            color: #2c3e50;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .score-summary {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .area-score {
+            display: inline-block;
+            margin: 0 15px;
+            text-align: center;
+        }
+        
+        .area-name {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .print-button {
+            background-color: #27ae60;
+        }
+        
+        .print-button:hover {
+            background-color: #219653;
+        }
+        
+        /* 支付相关样式 */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .payment-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .payment-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .payment-qrcode {
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto 20px;
+        }
+        
+        .payment-instructions {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .payment-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        .payment-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .payment-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .payment-confirm {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .payment-cancel {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .payment-status {
+            margin-top: 15px;
+            color: #e74c3c;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        
+        .alipay-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .alipay-logo {
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        /* 加载动画 */
+        .loading-spinner {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #2ecc71;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 支付状态指示器 */
+        .payment-progress {
+            display: none;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .progress-dots {
+            display: inline-block;
+        }
+        
+        .progress-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin: 0 3px;
+        }
+        
+        .progress-dot.active {
+            background-color: #3498db;
+        }
+        
+        /* 支付结果样式 */
+        .payment-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .payment-result.success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+        
+        .payment-result.error {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>儿童发育阶段自测表</h1>
+    
+    <div class="intro">
+        <p>这份自测表旨在帮助家长了解孩子在不同发育领域的表现。请根据您对孩子日常行为的观察，选择最符合实际情况的选项。</p>
+        <p>注意：此自测表仅供参考，不能替代专业医疗评估。如有发育方面的担忧，请咨询儿科医生或发育专家。</p>
+    </div>
+    
+    <form id="assessment-form">
+        <div class="question-container">
+            <div class="question">1. 您的孩子目前的年龄是：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="age" value="1"> 0-12个月</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="age" value="2"> 1-2岁</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="age" value="3"> 3-4岁</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="age" value="4"> 5-6岁</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">2. 在自由游戏时，您的孩子通常会：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="play" value="1"> 很少主动探索玩具或环境</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="play" value="2"> 简单操作玩具，但玩法单一</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="play" value="3"> 有创意地使用玩具，能进行简单的角色扮演</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="play" value="4"> 能进行复杂的想象游戏，并创造故事情节</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">3. 关于语言表达，以下哪项最符合您孩子的情况：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="language" value="1"> 很少发出声音或尝试交流</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="language" value="2"> 能说简单的词语，但很少组成句子</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="language" value="3"> 能用简单句子表达需求和想法</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="language" value="4"> 语言表达丰富，能进行复杂对话</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">4. 您的孩子在社交互动方面：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="social" value="1"> 很少对他人表现出兴趣</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="social" value="2"> 喜欢与人互动，但不太理解社交规则</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="social" value="3"> 能与同龄人一起玩耍，有基本的分享概念</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="social" value="4"> 能理解他人感受，有良好的合作能力</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">5. 关于运动技能，您的孩子：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="motor" value="1"> 动作发展明显落后于同龄人</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="motor" value="2"> 能完成基本动作，但不够协调</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="motor" value="3"> 动作协调性良好，能进行一般的体育活动</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="motor" value="4"> 运动能力出色，动作灵活协调</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">6. 您的孩子在注意力方面：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="attention" value="1"> 很难集中注意力，即使是喜欢的活动也难以持续</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="attention" value="2"> 能短时间集中注意力，但容易分心</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="attention" value="3"> 对感兴趣的活动能保持较长时间的注意力</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="attention" value="4"> 注意力集中，能完成年龄适合的任务</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">7. 在解决问题时，您的孩子：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="cognitive" value="1"> 很少尝试解决问题，通常需要大量帮助</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="cognitive" value="2"> 能解决简单问题，但遇到困难容易放弃</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="cognitive" value="3"> 有一定的解决问题能力，会尝试不同方法</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="cognitive" value="4"> 思维灵活，能创造性地解决问题</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">8. 关于情绪调节，您的孩子：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="emotion" value="1"> 情绪波动大，经常有强烈的情绪爆发</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="emotion" value="2"> 能表达基本情绪，但调节能力有限</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="emotion" value="3"> 大部分时间能控制情绪，偶尔需要帮助</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="emotion" value="4"> 情绪稳定，能适当表达和调节自己的情绪</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">9. 在日常生活技能方面，您的孩子：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="daily" value="1"> 几乎所有事情都需要帮助</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="daily" value="2"> 能完成一些简单的自理活动，但需要提醒</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="daily" value="3"> 能独立完成大部分适合年龄的日常活动</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="daily" value="4"> 非常独立，能完成超出年龄预期的日常任务</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container">
+            <div class="question">10. 您的孩子对新环境或变化的反应是：</div>
+            <div class="options">
+                <div class="option">
+                    <label><input type="radio" name="adaptation" value="1"> 极度抗拒，可能有强烈的不安或恐惧</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="adaptation" value="2"> 需要很长时间适应，初期表现紧张</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="adaptation" value="3"> 短暂适应期后能接受新环境</label>
+                </div>
+                <div class="option">
+                    <label><input type="radio" name="adaptation" value="4"> 适应能力强，对新环境感兴趣且反应积极</label>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" id="submit-button">提交评估</button>
+    </form>
+    
+    <div id="results">
+        <h2>儿童发展评估报告</h2>
+        
+        <div class="score-summary">
+            <div class="area-score">
+                <div class="area-name">认知</div>
+                <div class="score" id="cognitive-score">-</div>
+            </div>
+            <div class="area-score">
+                <div class="area-name">语言</div>
+                <div class="score" id="language-score">-</div>
+            </div>
+            <div class="area-score">
+                <div class="area-name">社交</div>
+                <div class="score" id="social-score">-</div>
+            </div>
+            <div class="area-score">
+                <div class="area-name">运动</div>
+                <div class="score" id="motor-score">-</div>
+            </div>
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">总体评估</h3>
+            <p id="overall-assessment"></p>
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">发展优势</h3>
+            <p id="strengths"></p>
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">需要关注的领域</h3>
+            <p id="concerns"></p>
+        </div>
+        
+        <div class="result-section">
+            <h3 class="result-title">发展建议</h3>
+            <div id="recommendations"></div>
+        </div>
+        
+        <button type="button" id="full-report-button" class="print-button">查看完整报告</button>
+    </div>
+    
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-content">
+            <div class="payment-title">支付查看完整报告</div>
+            <div class="payment-price">¥9.90</div>
+            <img src="1742965101857.jpg" alt="支付宝支付二维码" class="payment-qrcode">
+            <div class="payment-instructions">
+                <p>请使用支付宝扫描上方二维码完成支付</p>
+                <p>支付完成后点击下方按钮查看报告</p>
+            </div>
+            <div class="loading-spinner" id="payment-spinner"></div>
+            <div class="payment-progress" id="payment-progress">
+                <div class="progress-dots">
+                    <span class="progress-dot active"></span>
+                    <span class="progress-dot"></span>
+                    <span class="progress-dot"></span>
+                </div>
+                <div id="progress-text">正在连接支付服务...</div>
+            </div>
+            <div class="payment-result" id="payment-result"></div>
+            <div class="payment-buttons">
+                <button type="button" id="payment-confirm" class="payment-button payment-confirm">我已完成支付</button>
+                <button type="button" id="payment-cancel" class="payment-button payment-cancel">取消</button>
+            </div>
+            <div class="payment-status" id="payment-status"></div>
+        </div>
+    </div>
+    
+    <!-- 引入支付API服务 -->
+    <script src="payment-api.js"></script>
+    
+    <script>
+        // 评估控制器
+        const AssessmentController = {
+            // 初始化
+            init() {
+                // 绑定事件
+                document.getElementById('submit-button').addEventListener('click', this.submitAssessment.bind(this));
+                document.getElementById('full-report-button').addEventListener('click', this.showFullReport.bind(this));
+                
+                // 初始化支付控制器
+                PaymentController.init();
+            },
+            
+            // 提交评估
+            submitAssessment() {
+                // 获取表单数据
+                const form = document.getElementById('assessment-form');
+                const formData = new FormData(form);
+                
+                // 验证表单
+                const questions = ['age', 'play', 'language', 'social', 'motor', 'attention', 'cognitive', 'emotion', 'daily', 'adaptation'];
+                let isValid = true;
+                
+                for (const question of questions) {
+                    if (!formData.get(question)) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                
+                if (!isValid) {
+                    alert('请回答所有问题后再提交评估');
+                    return;
+                }
+                
+                // 计算得分
+                const scores = {
+                    cognitive: parseInt(formData.get('cognitive')),
+                    language: parseInt(formData.get('language')),
+                    social: parseInt(formData.get('social')),
+                    motor: parseInt(formData.get('motor')),
+                    attention: parseInt(formData.get('attention')),
+                    emotion: parseInt(formData.get('emotion')),
+                    adaptation: parseInt(formData.get('adaptation')),
+                    daily: parseInt(formData.get('daily')),
+                    play: parseInt(formData.get('play')),
+                    age: parseInt(formData.get('age'))
+                };
+                
+                // 收集答案
+                const answers = {};
+                for (const question of questions) {
+                    answers[question] = parseInt(formData.get(question));
+                }
+                
+                // 显示结果
+                UIController.displayResults(scores, answers);
+            },
+            
+            // 显示完整报告
+            showFullReport() {
+                PaymentController.showPaymentModal();
+            }
+        };
+        
+        // 支付控制器
+        const PaymentController = {
+            // 初始化
+            init() {
+                // 创建支付宝服务实例
+                this.alipayService = new AlipayService({
+                    appId: '2021000000000000', // 替换为您的真实appId
+                    privateKey: 'your_private_key', // 替换为您的私钥
+                    alipayPublicKey: 'alipay_public_key' // 替换为支付宝公钥
+                });
+                
+                // 当前订单
+                this.currentOrder = null;
+                
+                // 轮询控制器
+                this.pollingController = null;
+                
+                // 支付状态元素
+                this.statusElement = document.getElementById('payment-status');
+                this.spinnerElement = document.getElementById('payment-spinner');
+                this.progressElement = document.getElementById('payment-progress');
+                this.resultElement = document.getElementById('payment-result');
+                this.progressTextElement = document.getElementById('progress-text');
+                this.progressDots = document.querySelectorAll('.progress-dot');
+            },
+            
+            // 显示支付模态框
+            showPaymentModal() {
+                // 重置状态
+                this.resetPaymentStatus();
+                
+                // 显示模态框
+                document.getElementById('payment-modal').style.display = 'flex';
+                
+                // 绑定事件
+                document.getElementById('payment-confirm').onclick = () => this.verifyPayment();
+                document.getElementById('payment-cancel').onclick = () => this.closePayment();
+            },
+            
+            // 关闭支付模态框
+            closePayment() {
+                document.getElementById('payment-modal').style.display = 'none';
+                
+                // 停止轮询
+                if (this.pollingController) {
+                    this.pollingController.stop();
+                    this.pollingController = null;
+                }
+                
+                // 重置状态
+                this.resetPaymentStatus();
+            },
+            
+            // 重置支付状态
+            resetPaymentStatus() {
+                this.statusElement.textContent = '';
+                this.spinnerElement.style.display = 'none';
+                this.progressElement.style.display = 'none';
+                this.resultElement.style.display = 'none';
+                this.resultElement.className = 'payment-result';
+                
+                // 启用确认按钮
+                document.getElementById('payment-confirm').disabled = false;
+                
+                // 重置进度点
+                this.progressDots.forEach((dot, index) => {
+                    dot.className = index === 0 ? 'progress-dot active' : 'progress-dot';
+                });
+            },
+            
+            // 显示状态信息
+            showStatus(message, isError = false) {
+                this.statusElement.textContent = message;
+                this.statusElement.style.color = isError ? '#e74c3c' : '#2c3e50';
+            },
+            
+            // 显示结果信息
+            showResult(message, isSuccess = true) {
+                this.resultElement.textContent = message;
+                this.resultElement.className = isSuccess ? 'payment-result success' : 'payment-result error';
+                this.resultElement.style.display = 'block';
+            },
+            
+            // 更新进度显示
+            updateProgress(step, message) {
+                // 更新进度文本
+                this.progressTextElement.textContent = message;
+                
+                // 更新进度点
+                this.progressDots.forEach((dot, index) => {
+                    dot.className = index <= step ? 'progress-dot active' : 'progress-dot';
+                });
+            },
+            
+            // 验证支付结果
+            async verifyPayment() {
+                try {
+                    // 禁用确认按钮
+                    const confirmButton = document.getElementById('payment-confirm');
+                    confirmButton.disabled = true;
+                    
+                    // 显示加载状态
+                    this.spinnerElement.style.display = 'block';
+                    this.progressElement.style.display = 'block';
+                    this.showStatus('正在处理您的支付请求...');
+                    
+                    // 创建订单
+                    if (!this.currentOrder) {
+                        // 获取当前评估数据
+                        const assessmentData = {
+                            scores: {
+                                cognitive: parseInt(document.getElementById('cognitive-score').textContent),
+                                language: parseInt(document.getElementById('language-score').textContent),
+                                social: parseInt(document.getElementById('social-score').textContent),
+                                motor: parseInt(document.getElementById('motor-score').textContent)
+                            },
+                            answers: {} // 在实际应用中，这里应该包含用户的所有答案
+                        };
+                        
+                        this.updateProgress(0, '正在创建订单...');
+                        
+                        // 创建订单
+                        this.currentOrder = await this.alipayService.createOrder({
+                            amount: 9.90,
+                            subject: '儿童发育评估完整报告',
+                            metadata: {
+                                assessment_data: btoa(JSON.stringify(assessmentData))
+                            }
+                        });
+                        
+                        this.updateProgress(1, '订单创建成功，开始验证支付状态...');
+                    }
+                    
+                    // 开始轮询验证支付状态
+                    this.pollingController = this.alipayService.startPolling(
+                        this.currentOrder.orderId,
+                        // 状态变化回调
+                        (status) => {
+                            const attempt = status.attempt;
+                            const maxAttempts = this.alipayService.maxPollingAttempts;
+                            this.updateProgress(1, `正在验证支付结果 (${attempt}/${maxAttempts})...`);
+                            
+                            if (attempt > 1) {
+                                this.updateProgress(2, `正在验证支付结果 (${attempt}/${maxAttempts})...`);
+                            }
+                        },
+                        // 成功回调
+                        (orderStatus) => {
+                            this.handleSuccess();
+                        },
+                        // 错误回调
+                        (error) => {
+                            this.showStatus('支付验证失败: ' + error.message, true);
+                            this.showResult('支付验证失败，请重试或联系客服', false);
+                            confirmButton.disabled = false;
+                        },
+                        // 超时回调
+                        (error) => {
+                            this.showStatus('支付验证超时，请确认支付后重试', true);
+                            this.showResult('支付验证超时，请重试或联系客服', false);
+                            confirmButton.disabled = false;
+                        }
+                    );
+                    
+                } catch (error) {
+                    console.error('支付验证失败:', error);
+                    this.showStatus('支付验证服务暂时不可用', true);
+                    this.showResult('支付验证服务暂时不可用，请稍后重试', false);
+                    
+                    // 启用确认按钮
+                    document.getElementById('payment-confirm').disabled = false;
+                }
+            },
+            
+            // 处理支付成功
+            handleSuccess() {
+                // 更新UI
+                this.spinnerElement.style.display = 'none';
+                this.showStatus('支付验证成功！');
+                this.showResult('支付已成功处理！正在加载完整报告...', true);
+                
+                // 标记为已支付
+                sessionStorage.setItem('paid_report', 'true');
+                
+                // 延迟关闭支付窗口并显示完整报告
+                setTimeout(() => {
+                    // 关闭支付窗口
+                    this.closePayment();
+                    
+                    // 显示完整报告
+                    if (this.currentOrder && this.currentOrder.metadata && this.currentOrder.metadata.assessment_data) {
+                        const assessmentData = JSON.parse(atob(this.currentOrder.metadata.assessment_data));
+                        UIController.displayResults(assessmentData.scores, assessmentData.answers);
+                    } else {
+                        // 如果没有订单数据，使用当前显示的评估结果
+                        const scores = {
+                            cognitive: parseInt(document.getElementById('cognitive-score').textContent),
+                            language: parseInt(document.getElementById('language-score').textContent),
+                            social: parseInt(document.getElementById('social-score').textContent),
+                            motor: parseInt(document.getElementById('motor-score').textContent)
+                        };
+                        UIController.displayResults(scores, {});
+                    }
+                }, 2000);
+            }
+        };
+        
+        // UI控制器
+        const UIController = {
+            // 显示评估结果
+            displayResults: (scores, answers) => {
+                // 显示分数
+                document.getElementById('cognitive-score').textContent = scores.cognitive;
+                document.getElementById('language-score').textContent = scores.language;
+                document.getElementById('social-score').textContent = scores.social;
+                document.getElementById('motor-score').textContent = scores.motor;
+                
+                // 计算总分
+                const totalScore = scores.cognitive + scores.language + scores.social + scores.motor + 
+                                  scores.attention + scores.emotion + scores.adaptation + scores.daily;
+                
+                // 生成评估结果
+                const results = {};
+                
+                // 总体评估
+                if (totalScore >= 28) {
+                    results.overall = "根据您提供的信息，您的孩子在各个发育领域表现良好，整体发展水平符合或超过同龄人。";
+                } else if (totalScore >= 20) {
+                    results.overall = "根据您提供的信息，您的孩子在大多数发育领域发展正常，个别领域可能需要额外关注。";
+                } else if (totalScore >= 12) {
+                    results.overall = "根据您提供的信息，您的孩子在某些发育领域可能需要额外关注，整体发展水平略低于同龄人。";
+                } else {
+                    results.overall = "根据您提供的信息，您的孩子在多个发育领域可能需要专业支持，建议咨询儿科医生或发育专家。";
+                }
+                
+                // 发展优势
+                const strengths = [];
+                if (scores.cognitive >= 3) strengths.push("认知能力");
+                if (scores.language >= 3) strengths.push("语言能力");
+                if (scores.social >= 3) strengths.push("社交能力");
+                if (scores.motor >= 3) strengths.push("运动技能");
+                if (scores.attention >= 3) strengths.push("注意力");
+                if (scores.emotion >= 3) strengths.push("情绪调节");
+                if (scores.adaptation >= 3) strengths.push("适应能力");
+                if (scores.daily >= 3) strengths.push("日常生活技能");
+                
+                results.strengths = strengths.length > 0 
+                    ? `您的孩子在以下领域表现出优势：${strengths.join("、")}。`
+                    : "根据评估，您的孩子目前尚未显示出明显的发展优势领域。";
+                
+                // 需要关注的领域
+                const concerns = [];
+                if (scores.cognitive <= 2) concerns.push("认知能力");
+                if (scores.language <= 2) concerns.push("语言能力");
+                if (scores.social <= 2) concerns.push("社交能力");
+                if (scores.motor <= 2) concerns.push("运动技能");
+                if (scores.attention <= 2) concerns.push("注意力");
+                if (scores.emotion <= 2) concerns.push("情绪调节");
+                if (scores.adaptation <= 2) concerns.push("适应能力");
+                if (scores.daily <= 2) concerns.push("日常生活技能");
+                
+                results.concerns = concerns.length > 0 
+                    ? `以下领域可能需要额外关注：${concerns.join("、")}。`
+                    : "根据评估，您的孩子在各个发展领域都表现良好，没有特别需要关注的问题。";
+                
+                // 发展建议
+                const recommendations = [];
+                
+                if (scores.cognitive <= 2) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>认知能力提升建议：</strong>
+                            <ul>
+                                <li>提供各种解决问题的机会，如拼图、分类游戏等</li>
+                                <li>鼓励探索和提问，耐心回答孩子的"为什么"</li>
+                                <li>阅读各类图书，讨论故事情节和角色</li>
+                            </ul>
+                        </div>
+                    `);
+                }
+                
+                if (scores.language <= 2) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>语言能力提升建议：</strong>
+                            <ul>
+                                <li>每天与孩子进行有质量的对话，使用丰富的词汇</li>
+                                <li>朗读故事书，讨论书中的内容</li>
+                                <li>鼓励孩子表达想法和感受，耐心倾听</li>
+                            </ul>
+                        </div>
+                    `);
+                }
+                
+                if (scores.social <= 2) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>社交能力提升建议：</strong>
+                            <ul>
+                                <li>安排与同龄人的玩耍机会，如游乐场、亲子班等</li>
+                                <li>教导基本社交规则，如轮流、分享、合作</li>
+                                <li>通过角色扮演游戏练习社交互动</li>
+                            </ul>
+                        </div>
+                    `);
+                }
+                
+                if (scores.motor <= 2) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>运动技能提升建议：</strong>
+                            <ul>
+                                <li>提供充足的户外活动时间，如跑步、攀爬、球类游戏</li>
+                                <li>鼓励参与精细动作活动，如绘画、串珠、折纸</li>
+                                <li>根据年龄提供适合的运动挑战</li>
+                            </ul>
+                        </div>
+                    `);
+                }
+                
+                if (recommendations.length === 0) {
+                    recommendations.push(`
+                        <div class="recommendation">
+                            <strong>继续保持良好发展的建议：</strong>
+                            <ul>
+                                <li>继续提供丰富多样的学习和游戏机会</li>
+                                <li>关注孩子的兴趣，支持其探索和发展特长</li>
+                                <li>保持良好的亲子互动和沟通</li>
+                            </ul>
+                        </div>
+                    `);
+                }
+                
+                results.recommendations = recommendations.join("");
+                
+                // 更新UI
+                document.getElementById('overall-assessment').textContent = results.overall;
+                document.getElementById('strengths').textContent = results.strengths;
+                document.getElementById('concerns').textContent = results.concerns;
+                document.getElementById('recommendations').innerHTML = results.recommendations;
+                
+                // 显示结果区域
+                document.getElementById('results').style.display = 'block';
+                
+                // 滚动到结果区域
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            AssessmentController.init();
+        });
+    </script>
+</body>
+</html>
