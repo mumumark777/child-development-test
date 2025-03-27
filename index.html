@@ -299,6 +299,59 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        
+        /* 微信分享按钮样式 */
+        .wechat-share-button {
+            background-color: #07C160;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .wechat-share-button:hover {
+            background-color: #06AD56;
+        }
+        
+        .wechat-share-button img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+        
+        /* 裂变钩子样式 */
+        .viral-hook {
+            background-color: #FFF9E6;
+            border: 2px dashed #FFD700;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .viral-hook-title {
+            color: #FF6B00;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .viral-hook-content {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .viral-hook-contact {
+            font-weight: bold;
+            color: #FF6B00;
+        }
     </style>
 </head>
 <body>
@@ -534,6 +587,21 @@
             <h3 class="result-title">发展建议</h3>
             <div id="recommendations"></div>
         </div>
+        
+        <!-- 裂变钩子 -->
+        <div class="viral-hook" id="viral-hook">
+            <div class="viral-hook-title">恭喜您的宝宝能力评估优秀！</div>
+            <div class="viral-hook-content">恭喜你成为10%大数据测评库优秀家长</div>
+            <div class="viral-hook-contact">联系我们电话：18966240936，免费领取《在家里也可以玩的早教游戏宝典》</div>
+        </div>
+        
+        <!-- 微信分享按钮 -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="wechat-share-button" id="wechat-share-button">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTguNjggMTMuNzEzYTEuMTQ1IDEuMTQ1IDAgMCAxLTEuMTQ2LTEuMTQ3YzAtLjYzMi41MTQtMS4xNDYgMS4xNDYtMS4xNDYuNjMzIDAgMS4xNDcuNTE0IDEuMTQ3IDEuMTQ2IDAgLjYzMy0uNTE0IDEuMTQ3LTEuMTQ3IDEuMTQ3bTQuMzk4IDBjLS42MzIgMC0xLjE0Ni0uNTE0LTEuMTQ2LTEuMTQ3IDAtLjYzMi41MTQtMS4xNDYgMS4xNDYtMS4xNDYuNjMzIDAgMS4xNDcuNTE0IDEuMTQ3IDEuMTQ2IDAgLjYzMy0uNTE0IDEuMTQ3LTEuMTQ3IDEuMTQ3bTQuMDU3LTQuNDIyYy43NTkgMCAxLjM3NS0uNjE2IDEuMzc1LTEuMzc2IDAtLjc2LS42MTYtMS4zNzUtMS4zNzUtMS4zNzUtLjc2IDAtMS4zNzYuNjE2LTEuMzc2IDEuMzc1IDAgLjc2LjYxNiAxLjM3NiAxLjM3NiAxLjM3Nm0tMy40MyAwYy43NiAwIDEuMzc2LS42MTYgMS4zNzYtMS4zNzYgMC0uNzYtLjYxNi0xLjM3NS0xLjM3Ni0xLjM3NS0uNzYgMC0xLjM3NS42MTYtMS4zNzUgMS4zNzUgMCAuNzYuNjE2IDEuMzc2IDEuMzc1IDEuMzc2bTguNDUgNC40MjJjMCAzLjU1LTMuNTUxIDYuNDQtNy45MDIgNi40NC0xLjA0OCAwLTIuMDUtLjE4Ny0yLjk4LS41MTRsLTMuMDU2IDEuODMuODc0LTIuNjE1Yy0xLjgyOS0xLjI4My0yLjc0LTMuMDU1LTIuNzQtNS4xNDEgMC0zLjU1IDMuNTUxLTYuNDQgNy45MDItNi40NCA0LjM1MSAwIDcuOTAyIDIuODkgNy45MDIgNi40NE0xMiAwQzUuMzczIDAgMCA1LjM3MyAwIDEyYzAgNi42MjcgNS4zNzMgMTIgMTIgMTIgNi42MjcgMCAxMi01LjM3MyAxMi0xMiAwLTYuNjI3LTUuMzczLTEyLTEyLTEyIi8+PC9zdmc+" alt="微信分享">
+                分享到微信
+            </button>
+        </div>
     </div>
     
     <div class="payment-modal" id="payment-modal">
@@ -566,6 +634,9 @@
     <!-- 引入支付API服务 -->
     <script src="payment-api.js"></script>
     
+    <!-- 引入微信分享组件 -->
+    <script src="wechat-share.js"></script>
+    
     <script>
         // 评估控制器
         const AssessmentController = {
@@ -579,6 +650,47 @@
                 
                 // 检查是否已支付
                 this.checkPaymentStatus();
+                
+                // 初始化微信分享按钮
+                document.getElementById('wechat-share-button').addEventListener('click', this.handleShareClick.bind(this));
+            },
+            
+            // 处理分享按钮点击
+            handleShareClick() {
+                // 获取评估数据
+                const assessmentData = JSON.parse(sessionStorage.getItem('assessment_data') || '{}');
+                const totalScore = this.calculateTotalScore(assessmentData.scores || {});
+                
+                // 根据得分设置不同的分享内容
+                let shareTitle = '测测你的育儿力指数';
+                let shareDesc = '我已完成儿童发育阶段自测，快来试试！';
+                
+                if (totalScore >= 28) {
+                    shareTitle = '我的宝宝获得了优秀评级！';
+                    shareDesc = '我已获得【高级育儿师】称号，快来测测你的育儿力指数！';
+                } else if (totalScore >= 20) {
+                    shareTitle = '我的宝宝发育状况良好！';
+                    shareDesc = '儿童发育阶段自测表帮我了解了孩子的发展情况，推荐给你！';
+                }
+                
+                // 更新微信分享内容
+                WechatShare.updateShareInfo({
+                    title: shareTitle,
+                    desc: shareDesc,
+                    link: window.location.href,
+                    imgUrl: 'https://mumumark777.github.io/child-development-test/1742965101857.jpg'
+                });
+                
+                // 提示用户
+                alert('请点击右上角"..."按钮，选择"分享给朋友"或"分享到朋友圈"');
+            },
+            
+            // 计算总分
+            calculateTotalScore(scores) {
+                if (!scores || Object.keys(scores).length === 0) return 0;
+                
+                return scores.cognitive + scores.language + scores.social + scores.motor + 
+                       scores.attention + scores.emotion + scores.adaptation + scores.daily;
             },
             
             // 检查支付状态
@@ -984,6 +1096,41 @@
                 // 显示结果区域
                 document.getElementById('results').style.display = 'block';
                 
+                // 显示或隐藏裂变钩子
+                const viralHookElement = document.getElementById('viral-hook');
+                if (totalScore >= 28) {
+                    viralHookElement.style.display = 'block';
+                } else {
+                    viralHookElement.style.display = 'none';
+                }
+                
+                // 初始化微信分享内容
+                let shareTitle = '测测你的育儿力指数';
+                let shareDesc = '我已完成儿童发育阶段自测，快来试试！';
+                
+                if (totalScore >= 28) {
+                    shareTitle = '我的宝宝获得了优秀评级！';
+                    shareDesc = '我已获得【高级育儿师】称号，快来测测你的育儿力指数！';
+                } else if (totalScore >= 20) {
+                    shareTitle = '我的宝宝发育状况良好！';
+                    shareDesc = '儿童发育阶段自测表帮我了解了孩子的发展情况，推荐给你！';
+                }
+                
+                // 初始化微信分享SDK
+                WechatShare.init({
+                    debug: false,
+                    appId: 'wx12345678', // 替换为您的公众号appId
+                    timestamp: Date.now().toString().substr(0, 10),
+                    nonceStr: Math.random().toString(36).substr(2, 15),
+                    signature: 'test_signature', // 实际使用时需要从服务器获取签名
+                    shareData: {
+                        title: shareTitle,
+                        desc: shareDesc,
+                        link: window.location.href,
+                        imgUrl: 'https://mumumark777.github.io/child-development-test/1742965101857.jpg'
+                    }
+                });
+                
                 // 滚动到结果区域
                 document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
             }
@@ -994,5 +1141,10 @@
             AssessmentController.init();
         });
     </script>
+    
+    <!-- 页脚添加 -->
+    <footer style="text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #eee; color: #666; font-size: 14px;">
+        <p>© 2025 儿童发育阶段自测表 | <a href="privacy-policy.html" style="color: #3498db; text-decoration: none;">《隐私条款》</a></p>
+    </footer>
 </body>
 </html>
